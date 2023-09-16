@@ -24,11 +24,13 @@ pipeline {
         }
         stage('Push Image '){
             steps{
-                docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS){
-                    sh '''
-                    echo 'Pushing docker image'
-                    docker push krsharma/python-ci-cd:${BUILD_NUMBER} 
-                    '''
+                script{
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS){
+                        sh '''
+                        echo 'Pushing docker image'
+                        docker push krsharma/python-ci-cd:${BUILD_NUMBER} 
+                        '''
+                    }
                 }
             }
         }
