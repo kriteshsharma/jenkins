@@ -20,16 +20,21 @@ pipeline {
                     '''
             }
         }
+        stage('login') {
+            steps{
+                sh '''
+                echo 'docker login'
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+
+                '''
+            }
+        }
         stage('Push Image '){
             steps{
-                script{
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS){
-                        sh '''
-                        echo 'Pushing docker image'
-                        docker push krsharma/python-ci-cd:${BUILD_NUMBER} 
-                        '''
-                    }
-                }
+                sh '''
+                echo 'Pushing docker image'
+                docker push krsharma/python-ci-cd:${BUILD_NUMBER} 
+                '''
             }
         }
         stage('Update manifest file'){
