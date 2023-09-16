@@ -15,7 +15,8 @@ pipeline {
             steps{
                 sh '''
                 echo 'Building docker image'
-                docker build -t krsharma/python-ci-cd:${BUILD_NUMBER} python-jenkins-argocd-k8s/.
+                cd python-jenkins-argocd-k8s
+                docker build -t krsharma/python-ci-cd:${BUILD_NUMBER} .
                 '''
             }
         }
