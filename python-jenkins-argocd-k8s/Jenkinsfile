@@ -47,13 +47,12 @@ pipeline {
                         // Calculate the new image tag by incrementing the current tag
                         if (currentImageTag && currentImageTag.isNumber()) {
                             // Calculate the new image tag by incrementing the current tag
-                            def newImageTag = (currentImageTag.toInteger()).toString()
                             echo "Current Image Tag: ${currentImageTag}"
                             echo "New Image Tag: ${BUILD_NUMBER}"
                             // Use sed to replace the image tag in the deployment file
                             sh """
-                                sed -i 's|krsharma/python-ci-cd:${currentImageTag}|krsharma/python-ci-cd:${newImageTag}|g' python-jenkins-argocd-k8s/deploy/deploy.yaml
-                                sed -i 's|krsharma/python-ci-cd:${podcurrentImageTag}|krsharma/python-ci-cd:${newImageTag}|g' python-jenkins-argocd-k8s/deploy/pod.yaml
+                                sed -i 's|krsharma/python-ci-cd:${currentImageTag}|krsharma/python-ci-cd:${BUILD_NUMBER}|g' python-jenkins-argocd-k8s/deploy/deploy.yaml
+                                sed -i 's|krsharma/python-ci-cd:${podcurrentImageTag}|krsharma/python-ci-cd:${BUILD_NUMBER}|g' python-jenkins-argocd-k8s/deploy/pod.yaml
                                 cat python-jenkins-argocd-k8s/deploy/pod.yaml
                                 cat python-jenkins-argocd-k8s/deploy/deploy.yaml
                                 git config user.name "Kritesh Sharma"
