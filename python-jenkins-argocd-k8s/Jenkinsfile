@@ -34,32 +34,38 @@ pipeline {
             }
         }
         stage('Update manifest file'){
+            environment{
+                 GIT_REPO_NAME = "jenkins"
+                GIT_USER_NAME = "kriteshsharma"
+            }
             steps{
                 script{
-                    def BUILD_NUMBER = env.BUILD_NUMBER
-                    def currentImageTag = sh(script: "cat python-jenkins-argocd-k8s/deploy/deploy.yaml | grep 'image: krsharma/python-ci-cd:' | sed 's/.*://' | tr -d ' '", returnStdout: true).trim()
-                    // Calculate the new image tag by incrementing the current tag
-                     if (currentImageTag && currentImageTag.isNumber()) {
+                    withCredentials([string(credentialsId: 'git-token', variable: 'GITHUB_TOKEN')]) {
+                        def BUILD_NUMBER = env.BUILD_NUMBER
+                        def currentImageTag = sh(script: "cat python-jenkins-argocd-k8s/deploy/deploy.yaml | grep 'image: krsharma/python-ci-cd:' | sed 's/.*://' | tr -d ' '", returnStdout: true).trim()
                         // Calculate the new image tag by incrementing the current tag
-                        def newImageTag = (currentImageTag.toInteger() + BUILD_NUMBER.toInteger()).toString()
-                        echo "Current Image Tag: ${currentImageTag}"
-                        echo "New Image Tag: ${newImageTag}"
-                        // Use sed to replace the image tag in the deployment file
-                        sh """
-                            cat python-jenkins-argocd-k8s/deploy/deploy.yaml
-                            sed -i 's|krsharma/python-ci-cd:${currentImageTag}|krsharma/python-ci-cd:${newImageTag}|g' python-jenkins-argocd-k8s/deploy/deploy.yaml
-                            cat python-jenkins-argocd-k8s/deploy/deploy.yaml
-                            git config user.name "kriteshsharma"
-                            git config user.email "kritesh.bhojnagar@gmail.com"
-                            git add python-jenkins-argocd-k8s/deploy/deploy.yaml
-                            git commit -m "updated manifest file using jenkins ci"
-                            git remote -v
-                            git push https://github.com/kriteshsharma/jenkins.git HEAD:main   
-                        """
-                    } else {
-                        error "Failed to extract or process the image tag."
+                        if (currentImageTag && currentImageTag.isNumber()) {
+                            // Calculate the new image tag by incrementing the current tag
+                            def newImageTag = (currentImageTag.toInteger() + BUILD_NUMBER.toInteger()).toString()
+                            echo "Current Image Tag: ${currentImageTag}"
+                            echo "New Image Tag: ${newImageTag}"
+                            // Use sed to replace the image tag in the deployment file
+                            sh """
+                                cat python-jenkins-argocd-k8s/deploy/deploy.yaml
+                                sed -i 's|krsharma/python-ci-cd:${currentImageTag}|krsharma/python-ci-cd:${newImageTag}|g' python-jenkins-argocd-k8s/deploy/deploy.yaml
+                                cat python-jenkins-argocd-k8s/deploy/deploy.yaml
+                                git config user.name "Kritesh Sharma"
+                                git config user.email "kritesh.bhojnagar@gmail.com"
+                                git add python-jenkins-argocd-k8s/deploy/deploy.yaml
+                                git commit -m "updated manifest file using jenkins ci"
+                                git remote -v
+                                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main  
+                            """
+                            } 
+                        else {
+                            error "Failed to extract or process the image tag."
+                        }
                     }
-                
                 }
             }
         }
