@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: todo
-        image: krsharma/python-ci-cd:507
+        image: krsharma/python-ci-cd:559
         ports:
         - containerPort: 8000
